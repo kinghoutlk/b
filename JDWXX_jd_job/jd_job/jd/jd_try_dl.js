@@ -1,13 +1,23 @@
 /*
- * 如需运行请自行添加环境变量：JD_TRY，值填 true 即可运行
+ * 如需运行脚本必须开启代理
+ * 1.注册携趣代理：https://www.xiequ.cn/index.html?2f4ff690
+ * 2.获取携趣代理所需参数：http://cxgc.top/archives/xiequdaili
+ * 3.开启携趣代理 添加环境变量：xiequ，值填 True
+ * 4.携趣用户名 添加环境变量：proxyU，值填 第二步骤里获取
+ * 5.携趣密码 添加环境变量：proxyP，值填 第二步骤里获取
+ * 6.携趣IP提取地址 添加环境变量：ipUrl，值填 第二步骤里获取
+ * 安装下面二个所需依赖
+ * docker exec -it QL bash -c "npm install superagent-proxy"
+ * docker exec -it QL bash -c "yarn add superagent"
+ *
  * 脚本兼容: Node.js
  * X1a0He留
  * 脚本是否耗时只看args_xh.maxLength的大小
  * 上一作者说了每天最多300个商店，总上限为500个，jd_unsubscribe.js我已更新为批量取关版
  * 请提前取关至少250个商店确保京东试用脚本正常运行
  *
- * @Address: https://github.com/X1a0He/jd_scripts_fixed/blob/main/jd_try_xh.js
- * @LastEditors: X1a0He
+ * @Address: https://github.com/JDWXX/jd_job/blob/master/jd/jd_try_dl.js
+ * @LastEditors: JDWXX
  参考环境变量配置如下：
 export JD_TRY="true"
 export JD_TRY_PLOG="true" #是否打印输出到日志
@@ -22,6 +32,9 @@ cron "4 2,14 * * *" jd_try_dl.js, tag:京东试用
 
  */
 const $ = new Env('京东试用_携趣代理')
+console.log('\n 使用前一定要先安装下面二个所需依赖 ')
+console.log('\n docker exec -it QL bash -c "npm install superagent-proxy" ')
+console.log('\n docker exec -it QL bash -c "yarn add superagent" ')
 const URL = 'https://api.m.jd.com/client.action'
 let trialActivityIdList = []
 let trialActivityTitleList = []
@@ -48,7 +61,7 @@ $.innerKeyWords =
 		"女用", "神油", "足力健", "老年", "老人",
 		"宠物", "饲料", "丝袜", "黑丝", "磨脚",
 		"脚皮", "除臭", "性感", "内裤", "跳蛋",
-		"安全套", "龟头", "阴道", "阴部", "手机卡",
+		"安全套", "龟头", "阴道", "阴部", "手机卡","话费",
 		"流量卡", "和田玉", "钢化膜", "手机壳","习题","试卷","流量卡","大流量"
 	]
 //下面很重要，遇到问题请把下面注释看一遍再来问
@@ -91,14 +104,14 @@ let args_xh = {
      * C商品原价99元，试用价1元，如果下面设置为50，那么C商品将会被加入到待提交的试用组
      * 默认为0
      * */
-	jdPrice: process.env.JD_TRY_PRICE * 1 || 100,
+	jdPrice: process.env.JD_TRY_PRICE * 1 || 50,
 	/*
      * 获取试用商品类型，默认为1
      * 下面有一个function是可以获取所有tabId的，名为try_tabList
      * 可设置环境变量：JD_TRY_TABID，用@进行分隔
      * 默认为 1 到 10
      * */
-	tabId: process.env.JD_TRY_TABID && process.env.JD_TRY_TABID.split('@').map(Number) || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	tabId: process.env.JD_TRY_TABID && process.env.JD_TRY_TABID.split('@').map(Number) || [15, 5, 3, 4, 6, 8, 7, 9, 2, 10, 11, 12, 103, 104, 5, 13, 14, 16],
 	/*
      * 试用商品标题过滤，黑名单，当标题存在关键词时，则不加入试用组
      * 当白名单和黑名单共存时，黑名单会自动失效，优先匹配白名单，匹配完白名单后不会再匹配黑名单，望周知
@@ -139,7 +152,7 @@ let args_xh = {
      * 例如是18件，将会进行第三次获取，直到过滤完毕后为20件才会停止，不建议设置太大
      * 可设置环境变量：JD_TRY_MAXLENGTH
      * */
-	maxLength: process.env.JD_TRY_MAXLENGTH * 1 || 300,
+	maxLength: process.env.JD_TRY_MAXLENGTH * 1 || 150,
 	/*
      * 过滤种草官类试用，某些试用商品是专属官专属，考虑到部分账号不是种草官账号
      * 例如A商品是种草官专属试用商品，下面设置为true，而你又不是种草官账号，那A商品将不会被添加到待提交试用组
